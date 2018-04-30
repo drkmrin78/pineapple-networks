@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>Login</h1>
+  <img src="static/pineocker1.png" width=300 height=300>
+  <p>Here you can connect to a container!</p>
+  {% block body %}
+  <form action="/login" method="POST">
+    <input type="username" name="username" placeholder="Username">
+    <input type="password" name="password" placeholder="Password">
+    <input type="submit" value="Log in">
+  </form>
+
+  <form action="/register" method="GET">
+    <input type="submit" value="Register">
+  </form>
+  {% endblock %}
+  
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>Register</h1>
+  <img src="static/pineocker1.png" width=200 height=200>
+  {% block body %}
+  <form action="/register" method="POST">
+    <input type="username" name="username" placeholder="Username">
+    <input type="password" name="password" placeholder="Password">
+    <input type="submit" value="Register">
+  </form>
+  {% endblock %}
+  
+</body>
+</html>
