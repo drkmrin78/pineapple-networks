@@ -1,4 +1,5 @@
 #+title: Pineapple Networks
+[[static/pineocker1.png]]
 * Used Services
 *** AWS
     + EC2
