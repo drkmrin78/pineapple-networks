@@ -1,2 +1,44 @@
 #+title: Pineapple Networks
-* Website for creating virtual environments
+* Used Services
+*** AWS
+    + EC2
+    + DynamoDB
+    + Simple System Manager
+    + Lambda
+    + ALB
+
+*** Non-AWS
+    + Python Flask
+    + Docker
+
+* Overview
+
+
+
+* Website for creating virtual network environments
+  `index.py` is the flask server that can be run to interact with site. The
+  server triggers lambda functions (source in `/lambda-functions`) that
+  interacts with the specified container running docker. The containers and
+  networks are created and removed from lambda functions that use the Simple
+  System Manager (SSM) service in AWS. Cloudwatch and SSM are very useful for
+  debugging with these services. The containers that get spun up are all using
+  the docker image: rahmanusta/cloudterm. The users and session Ids are stored
+  in DynamoDB. Lastly I used the Application Load Balancer service to scale the
+  front end of the site. 
+
+* Setting up
+  I used two EC2 instances as a foundation for the site. One for the Front end
+  running the flask server. The other as the back end running the Docker
+  containers. The front end needs an IAM role with the permissions for using
+  lambda and Dynamodb. The lambda functions need a role with permission to use
+  SSM, and the EC2 back end also needs permission to accept SSM commands.
+
+  Once the EC2 set up and IAM roles created, the lambda functions can be
+  created. SSM is slow and lambda is fast so a timed delay is needed inside the
+  lambda to get the status of the ran command, this also means to increase the
+  timeout for lambda to at least 5 seconds or more. After that, Dynamodb just
+  needs two tables, One named `users` and the other `sessions`.
+
+  An ALB can be used to increase scalability. Add the front end to a target
+  group and create the ALB. Mine is called `pineapple-networks`. Then the site
+  can be accessed with the load balancer's DNS link. 
