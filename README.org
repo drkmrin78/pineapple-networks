@@ -2,7 +2,7 @@
 #+NAME: fig:Pinaocker
 #+CAPTION: Original image provided by Van-Nhan Nguyen.
 #+ATTR_ORG: :width 50 :height 50
-[[static/pineocker1.png]]
+[[static/pineocker1_tn.jpg]]
 * Used Services
 *** AWS
     + EC2
