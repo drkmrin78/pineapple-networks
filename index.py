@@ -4,8 +4,11 @@ from flask import Flask, render_template, request, redirect, url_for
 #need this
 app = Flask(__name__)
 ddb = boto3.resource('dynamodb', region_name='us-east-1')
+lmbd = boto3.client('lambda', region_name='us-east-1')
 users = ddb.Table('users')
 sessions = ddb.Table('sessions')
+
+next_port = 5000
 
 @app.route('/', methods=['GET'])
 def home():
@@ -92,14 +95,28 @@ def removecontainer(username,sid):
 
 @app.route('/add/container/<username>/<sid>', methods=['POST'])
 def addcontainer(username,sid):
-        response = users.get_item(Key={'username':username})
+        global next_port
+	response = users.get_item(Key={'username':username})
         if 'Item' in response:
                 item = response['Item']
-                containers = json.loads(item['containers'])
+		containers = json.loads(item['containers'])
                 next_id = int(item['nextid'])
                 #lambda stuff here eventually
                 containers[str(next_id)] = \
-                "http://ec2-52-207-232-241.compute-1.amazonaws.com:5000"
+                "http://ec2-18-206-154-250.compute-1.amazonaws.com:" + str(next_port)
+		
+		#create containter
+		resp = lmbd.invoke(
+			FunctionName='create-container',
+			Payload=json.dumps({"User":username, 
+				 	    "Id": "a"+str(next_id),
+				    	    "Port":str(next_port)})	
+			)
+		#if failure do not update
+		if resp == "Failure":
+                	return redirect(url_for('user', username=username, sid=sid))
+			
+		next_port += 1
 
                 users.update_item(Key={
                         'username':username
@@ -112,8 +129,6 @@ def addcontainer(username,sid):
                 
         return redirect(url_for('home'))
 
-
-        
 #need this
 if __name__ == '__main__':
         app.run(debug=True, host='0.0.0.0', port=80)
