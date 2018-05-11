@@ -9,6 +9,7 @@ users = ddb.Table('users')
 sessions = ddb.Table('sessions')
 
 next_port = 5000
+next_net = 1
 
 @app.route('/', methods=['GET'])
 def home():
@@ -44,7 +45,8 @@ def user(username, sid):
                         return render_template('user.html',
                                         sid = sid,
                                         username = username,
-                                containers=json.loads(item['containers']))
+                                containers=json.loads(item['containers']),
+				networks=json.loads(item['networks']))
         return redirect(url_for('home'))
 
 @app.route('/logout/<sid>', methods=['POST'])
@@ -66,7 +68,8 @@ def register():
                                 'username':username,
                                 'password':password,
                                 'nextid': '0',
-                                'containers': "{}"})
+                                'containers': "{}",
+				'networks': "{}"})
                         return redirect(url_for('home'))
                 else:
                         return redirect(url_for('register'))
@@ -78,7 +81,16 @@ def removecontainer(username,sid):
         if 'Item' in response:
                 item = response['Item']
                 containers = json.loads(item['containers'])
-                #lambda stuff here eventually
+		
+		#create containter
+		resp = lmbd.invoke(
+			FunctionName='remove-container',
+			Payload=json.dumps({"Id": "a"+id})	
+			)
+		#if failure do not update
+		if resp == "Failure":
+                	return redirect(url_for('user', username=username, sid=sid))
+
                 del containers[id]
                 users.update_item(Key={
                         'username':username
@@ -90,8 +102,33 @@ def removecontainer(username,sid):
                 
         return redirect(url_for('home'))
 
+@app.route('/remove/network/<username>/<sid>', methods=['POST'])
+def removenetwork(username,sid):
+        id = str(request.form['id'])
+        response = users.get_item(Key={'username':username})
+        if 'Item' in response:
+                item = response['Item']
+                networks = json.loads(item['networks'])
+		
+		#create containter
+		resp = lmbd.invoke(
+			FunctionName='remove-network',
+			Payload=json.dumps({"Network": networks[id]})	
+			)
+		#if failure do not update
+		if resp == "Failure":
+                	return redirect(url_for('user', username=username, sid=sid))
 
+                del networks[id]
+                users.update_item(Key={
+                        'username':username
+                },UpdateExpression='SET networks = :n',
+                ExpressionAttributeValues={
+                        ':n':json.dumps(networks),
+                })
+                return redirect(url_for('user', username=username, sid=sid))
                 
+        return redirect(url_for('home'))
 
 @app.route('/add/container/<username>/<sid>', methods=['POST'])
 def addcontainer(username,sid):
@@ -125,6 +162,85 @@ def addcontainer(username,sid):
                         ':c':json.dumps(containers),
                         ':i':(next_id+1)
                 })
+                return redirect(url_for('user', username=username, sid=sid))
+                
+        return redirect(url_for('home'))
+
+@app.route('/add/network/<username>/<sid>', methods=['POST'])
+def addnetwork(username,sid):
+	response = users.get_item(Key={'username':username})
+	name = request.form['network']
+	if name == '':
+                return redirect(url_for('user', username=username, sid=sid))
+		
+        if 'Item' in response:
+                item = response['Item']
+		networks = json.loads(item['networks'])
+                global next_net
+
+		#new net name
+                networks[str(next_net)] = name
+		
+		#create containter
+		resp = lmbd.invoke(
+			  FunctionName='create-network',
+			  Payload=json.dumps({"Network": name,
+					      "Netmask": "10.0."+str(next_net)})	
+			)
+		#if failure do not update
+		if resp == "Failure":
+                	return redirect(url_for('user', username=username, sid=sid))
+			
+		next_net += 1
+
+                users.update_item(Key={
+                        'username':username
+                },UpdateExpression='SET networks = :n',
+                ExpressionAttributeValues={
+                        ':n':json.dumps(networks),
+                })
+                return redirect(url_for('user', username=username, sid=sid))
+                
+        return redirect(url_for('home'))
+
+@app.route('/add/network/container/<username>/<sid>', methods=['POST'])
+def addcontainertonetwork(username,sid):
+	response = users.get_item(Key={'username':username})
+	net = request.form['Network']
+	con = request.form['Container']
+	if net == '' or con == '':
+                return redirect(url_for('user', username=username, sid=sid))
+		
+        if 'Item' in response:
+		networks = json.loads(response['Item']['networks'])
+		#add containter to network
+		resp = lmbd.invoke(
+			  FunctionName='add-container-to-network',
+			  Payload=json.dumps({"Network": networks[net],
+					      "Container": "a"+con})	
+			)
+		print(resp)
+                return redirect(url_for('user', username=username, sid=sid))
+                
+        return redirect(url_for('home'))
+
+@app.route('/remove/network/container/<username>/<sid>', methods=['POST'])
+def removecontainerfromnetwork(username,sid):
+	response = users.get_item(Key={'username':username})
+	net = request.form['Network']
+	con = request.form['Container']
+	if net == '' or con == '':
+                return redirect(url_for('user', username=username, sid=sid))
+		
+        if 'Item' in response:
+		networks = json.loads(response['Item']['networks'])
+		#add containter to network
+		resp = lmbd.invoke(
+			  FunctionName='remove-container-from-network',
+			  Payload=json.dumps({"Network": networks[net],
+					      "Container": "a"+con})	
+			)
+		print(resp)
                 return redirect(url_for('user', username=username, sid=sid))
                 
         return redirect(url_for('home'))

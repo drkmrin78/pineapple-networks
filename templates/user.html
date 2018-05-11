@@ -79,6 +79,33 @@ function dragElement(elmnt) {
     <input type="submit" value="Remove container">
   </form>  
   
+  <form action="/add/network/{{ username }}/{{ sid }}" method="POST">
+    <input type="text" name="network" placeholder="pineapple">
+    <input type="submit" value="Add Network!">
+  </form>  
+  
+  <form action="/remove/network/{{ username }}/{{ sid }}" method="POST">
+    <input type="number" name="id" placeholder="0">
+    <input type="submit" value="Remove network">
+  </form>  
+  
+  <form action="/add/network/container/{{ username }}/{{ sid }}" method="POST">
+    <input type="number" name="Container" placeholder="Container Id">
+    <input type="number" name="Network" placeholder="Network Id">
+    <input type="submit" value="Add Container to Network">
+  </form>  
+  
+  <form action="/remove/network/container/{{ username }}/{{ sid }}" method="POST">
+    <input type="number" name="Container" placeholder="Container Id">
+    <input type="number" name="Network" placeholder="Network Id">
+    <input type="submit" value="Remove Container from Network">
+  </form>  
+
+<h4>Networks</h4> 
+{% for id,network in networks.items() %}
+{{ id }}: {{network}}<br/>
+{% endfor %}
+  
   {% for id,container in containers.items() %}
   <div id="{{ id }}" class="mydiv">
   <h3>container #{{ id }}</h3>
