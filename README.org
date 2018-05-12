@@ -17,7 +17,11 @@ Youtube: https://youtu.be/5N_ltwRUuec
     + Docker
 
 * Overview
+  This website lets you spin-up containers, create network switches, and test
+  software or tools that normally require a multi-machine setup.
+  
   [[static/AWS FINAL PROJECT.png]]
+
 * Website for creating virtual network environments
   `index.py` is the flask server that can be run to interact with site. The
   server triggers lambda functions (source in `/lambda-functions`) that
