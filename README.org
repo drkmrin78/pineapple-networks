@@ -45,3 +45,10 @@ Youtube: https://youtu.be/5N_ltwRUuec
   An ALB can be used to increase scalability. Add the front end to a target
   group and create the ALB. Mine is called `pineapple-networks`. Then the site
   can be accessed with the load balancer's DNS link. 
+
+* Future Changes
+  I want to make this completely serverless using API Gateway and S3 on top of
+  services already being used. Fix all the bugs, and make a proper user database
+  that is secure. Lastly I would like to make an SSH websocket client with
+  terminal window. This would allow for various containers or Dockerfiles to be
+  uploaded and used instead of only using the cloudterm container. 
