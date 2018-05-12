@@ -3,6 +3,7 @@
 #+CAPTION: Original image provided by Van-Nhan Nguyen.
 #+ATTR_ORG: :width 50 :height 50
 [[static/pineocker1_tn.jpg]]
+Youtube: https://youtu.be/5N_ltwRUuec
 * Used Services
 *** AWS
     + EC2
@@ -16,9 +17,7 @@
     + Docker
 
 * Overview
-
-
-
+  [[static/AWS FINAL PROJECT.png]]
 * Website for creating virtual network environments
   `index.py` is the flask server that can be run to interact with site. The
   server triggers lambda functions (source in `/lambda-functions`) that
