@@ -1,4 +1,4 @@
-#+title: Pineapple Networks
+#+title: Pineapple Networks (moved to https://gitlab.com/drakemp)
 #+NAME: fig:Pinaocker
 #+CAPTION: Original image provided by Van-Nhan Nguyen.
 #+ATTR_ORG: :width 50 :height 50
